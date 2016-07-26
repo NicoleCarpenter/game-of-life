@@ -1,8 +1,5 @@
-(ns game-of-life.core)
-
-(def blinker [[0 0 0]
-              [1 1 1]
-              [0 0 0]])
+(ns game-of-life.core
+  (:require [game-of-life.patterns :as patterns]))
 
 (def countif (comp count filter))
 
@@ -54,11 +51,11 @@
 (defn- find-board-rows [board]
   (count board))
 
-(defn- evolve [board]
+(defn evolve [board]
   (let [board-locations (find-board-locations board)
         row-count (find-board-rows board)]
     (mapv vec (partition row-count (mapv #(evaluate-life board %) board-locations)))))
 
 (defn -main []
-  (let [initial-pattern blinker]
+  (let [initial-pattern patterns/blinker]
     (evolve initial-pattern)))
