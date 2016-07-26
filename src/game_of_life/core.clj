@@ -1,5 +1,6 @@
 (ns game-of-life.core
-  (:require [game-of-life.patterns :as patterns]))
+  (:require [game-of-life.patterns :as patterns]
+            [game-of-life.user-interface :as ui]))
 
 (def countif (comp count filter))
 
@@ -57,5 +58,7 @@
     (mapv vec (partition row-count (mapv #(evaluate-life board %) board-locations)))))
 
 (defn -main []
-  (let [initial-pattern patterns/blinker]
-    (evolve initial-pattern)))
+  (loop [x 10 initial-pattern patterns/blinker]
+    (when (= 0 x))
+      (ui/print-board initial-pattern)
+      (recur (dec x) (evolve initial-pattern))))
