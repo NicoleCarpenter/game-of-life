@@ -6,10 +6,10 @@
               [1 1 1]
               [0 0 0]])
 
-(describe "run"
-  (it "dies if there are fewer than 2 adjacent cells"
+(describe "evolve"
+  (it "changes the values of the board cells"
     (let [board blinker
-          new-board (game/run board)]
+          new-board (game/evolve board)]
       (should= 0 (get-in new-board [0 0]))
       (should= 1 (get-in new-board [0 1]))
       (should= 0 (get-in new-board [0 2]))
