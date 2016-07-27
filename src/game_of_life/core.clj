@@ -1,6 +1,6 @@
 (ns game-of-life.core
   (:require [game-of-life.patterns :as patterns]
-            [game-of-life.user-interface :as ui]))
+            [game-of-life.io :as io]))
 
 (def countif (comp count filter))
 
@@ -52,13 +52,32 @@
 (defn- find-board-rows [board]
   (count board))
 
+(defn- flatten-rows [board]
+  (for [row board]
+    (clojure.string/join " " row)))
+
+(defn- add-newline-to-rows [board]
+  (let [flattened-rows (flatten-rows board)]
+    (for [row flattened-rows]
+      (str row "\n"))))
+
+(defn- format-board [board]
+  (let [formatted-rows (add-newline-to-rows board)]
+    (clojure.string/join formatted-rows)))
+
+(defn- replace-with-printable-chars [board]
+  (let [formatted-board (format-board board)]
+    (clojure.string/replace formatted-board #"0|1" {"0" " " "1" "▇"})))
+
 (defn evolve [board]
   (let [board-locations (find-board-locations board)
         row-count (find-board-rows board)]
     (mapv vec (partition row-count (mapv #(evaluate-life board %) board-locations)))))
 
 (defn -main []
-  (loop [x 10 initial-pattern patterns/blinker]
-    (when (= 0 x))
-      (ui/print-board initial-pattern)
-      (recur (dec x) (evolve initial-pattern))))
+  (loop [pattern patterns/pulsar]
+    (let [formatted-board (replace-with-printable-chars pattern)]
+      (io/sleep 700)
+      (io/clear-scr)
+      (io/display formatted-board)
+      (recur (evolve pattern)))))
