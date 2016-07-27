@@ -13,8 +13,8 @@
   (let [self-and-neighbors (find-square-plot cell-location)]
     (filter #(not= cell-location %) self-and-neighbors)))
 
-(defn- find-board-upper-boundary [board]
-  [(dec (count board)) (dec (count (last board)))])
+(defn- find-world-upper-boundary [world]
+  [(dec (count world)) (dec (count (last world)))])
 
 (defn- within-lower-bounds? [neighbor-cell-location]
   (every? #(>= % 0) neighbor-cell-location))
@@ -22,18 +22,18 @@
 (defn- within-upper-bounds? [boundary neighbor-cell-location]
   (every? #(>= % 0) [(- (first boundary) (first neighbor-cell-location)) (- (last boundary) (last neighbor-cell-location))]))
 
-(defn- remove-out-of-bounds [board cell-location]
+(defn- remove-out-of-bounds [world cell-location]
   (let [neighbors (find-neighbor-indices cell-location)
-        upper-boundary (find-board-upper-boundary board)]
+        upper-boundary (find-world-upper-boundary world)]
     (filter #(and (within-lower-bounds? %) (within-upper-bounds? upper-boundary %)) neighbors)))
 
-(defn- count-number-of-living-neighbors [board cell-location]
-  (let [neighbor-locations (remove-out-of-bounds board cell-location)]
-  (countif #(= 1 (get-in board %)) neighbor-locations)))
+(defn- count-number-of-living-neighbors [world cell-location]
+  (let [neighbor-locations (remove-out-of-bounds world cell-location)]
+  (countif #(= 1 (get-in world %)) neighbor-locations)))
 
-(defn- evaluate-life [board cell-location]
-  (let [living-neighbors (count-number-of-living-neighbors board cell-location)
-        cell-value (get-in board cell-location)]
+(defn- evaluate-life [world cell-location]
+  (let [living-neighbors (count-number-of-living-neighbors world cell-location)
+        cell-value (get-in world cell-location)]
     (cond
       (< living-neighbors 2)
         0
@@ -44,40 +44,40 @@
       :else
         cell-value)))
 
-(defn- find-board-locations [board]
-  (for [[x row] (map-indexed vector board) 
+(defn- find-world-locations [world]
+  (for [[x row] (map-indexed vector world) 
         [y val] (map-indexed vector row)]
     [x y]))
 
-(defn- find-board-rows [board]
-  (count board))
+(defn- find-world-rows [world]
+  (count (first world)))
 
-(defn- flatten-rows [board]
-  (for [row board]
+(defn- flatten-rows [world]
+  (for [row world]
     (clojure.string/join " " row)))
 
-(defn- add-newline-to-rows [board]
-  (let [flattened-rows (flatten-rows board)]
+(defn- add-newline-to-rows [world]
+  (let [flattened-rows (flatten-rows world)]
     (for [row flattened-rows]
       (str row "\n"))))
 
-(defn- format-board [board]
-  (let [formatted-rows (add-newline-to-rows board)]
+(defn- format-world [world]
+  (let [formatted-rows (add-newline-to-rows world)]
     (clojure.string/join formatted-rows)))
 
-(defn- replace-with-printable-chars [board]
-  (let [formatted-board (format-board board)]
-    (clojure.string/replace formatted-board #"0|1" {"0" " " "1" "▇"})))
+(defn- replace-with-printable-chars [world]
+  (let [formatted-world (format-world world)]
+    (clojure.string/replace formatted-world #"0|1" {"0" " " "1" "▇"})))
 
-(defn evolve [board]
-  (let [board-locations (find-board-locations board)
-        row-count (find-board-rows board)]
-    (mapv vec (partition row-count (mapv #(evaluate-life board %) board-locations)))))
+(defn evolve [world]
+  (let [world-locations (find-world-locations world)
+        row-count (find-world-rows world)]
+    (mapv vec (partition row-count (mapv #(evaluate-life world %) world-locations)))))
 
 (defn -main []
-  (loop [pattern patterns/pulsar]
-    (let [formatted-board (replace-with-printable-chars pattern)]
-      (io/sleep 700)
+  (loop [pattern patterns/caterer]
+    (let [formatted-world (replace-with-printable-chars pattern)]
+      (io/sleep 1000)
       (io/clear-scr)
-      (io/display formatted-board)
+      (io/display formatted-world)
       (recur (evolve pattern)))))
