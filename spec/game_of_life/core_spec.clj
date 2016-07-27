@@ -1,4 +1,4 @@
-(ns game-of-life.core
+(ns game-of-life.core-spec
   (:require [speclj.core :refer :all]
             [game-of-life.patterns :as patterns]
             [game-of-life.core :as game]))
